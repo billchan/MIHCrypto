@@ -55,4 +55,6 @@
  */
 - (NSData *)signWithSHA256:(NSData *)message error:(NSError **)error;
 
+- (NSData *)signWithSHA512:(NSData *)message error:(NSError **)error;
+
 @end

@@ -157,7 +157,7 @@
         if (error) *error = [NSError errorFromOpenSSL];
         return nil;
     }
-
+    
     NSMutableData *signature = [NSMutableData dataWithLength:(NSUInteger) RSA_size(_rsa)];
     unsigned int signatureLength = 0;
     if (RSA_sign(NID_sha256, messageDigest, SHA256_DIGEST_LENGTH, signature.mutableBytes, &signatureLength, _rsa) == 0) {
@@ -166,7 +166,36 @@
         return nil;
     }
     [signature setLength:(NSUInteger) signatureLength];
+    
+    return signature;
+}
 
+- (NSData *)signWithSHA512:(NSData *)message error:(NSError **)error
+{
+    SHA512_CTX sha512Ctx;
+    unsigned char messageDigest[SHA512_DIGEST_LENGTH];
+    if (!SHA512_Init(&sha512Ctx)) {
+        if (error) *error = [NSError errorFromOpenSSL];
+        return nil;
+    }
+    if (!SHA512_Update(&sha512Ctx, message.bytes, message.length)) {
+        if (error) *error = [NSError errorFromOpenSSL];
+        return nil;
+    }
+    if (!SHA512_Final(messageDigest, &sha512Ctx)) {
+        if (error) *error = [NSError errorFromOpenSSL];
+        return nil;
+    }
+    
+    NSMutableData *signature = [NSMutableData dataWithLength:(NSUInteger) RSA_size(_rsa)];
+    unsigned int signatureLength = 0;
+    if (RSA_sign(NID_sha512, messageDigest, SHA512_DIGEST_LENGTH, signature.mutableBytes, &signatureLength, _rsa) == 0) {
+        if (error)
+            *error = [NSError errorFromOpenSSL];
+        return nil;
+    }
+    [signature setLength:(NSUInteger) signatureLength];
+    
     return signature;
 }
 
