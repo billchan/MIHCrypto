@@ -171,13 +171,32 @@
     return YES;
 }
 
+- (BOOL)verifySignatureWithSHA512:(NSData *)signature message:(NSData *)message
+{
+    SHA512_CTX sha512Ctx;
+    unsigned char messageDigest[SHA512_DIGEST_LENGTH];
+    if(!SHA512_Init(&sha512Ctx)) {
+        return NO;
+    }
+    if (!SHA512_Update(&sha512Ctx, message.bytes, message.length)) {
+        return NO;
+    }
+    if (!SHA512_Final(messageDigest, &sha512Ctx)) {
+        return NO;
+    }
+    if (RSA_verify(NID_sha512, messageDigest, SHA512_DIGEST_LENGTH, signature.bytes, (int)signature.length, _rsa) == 0) {
+        return NO;
+    }
+    return YES;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark NSObject
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 - (NSString *)description
 {
-    return [[self dataValue] MIH_base64EncodedString];
+    return [[NSString alloc] initWithData:[self dataValue] encoding:NSUTF8StringEncoding];
 }
 
 @end

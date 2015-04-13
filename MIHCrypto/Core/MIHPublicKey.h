@@ -53,4 +53,6 @@
  */
 - (BOOL)verifySignatureWithSHA256:(NSData *)signature message:(NSData *)message;
 
+- (BOOL)verifySignatureWithSHA512:(NSData *)signature message:(NSData *)message;
+
 @end
