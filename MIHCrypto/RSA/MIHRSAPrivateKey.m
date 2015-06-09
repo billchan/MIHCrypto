@@ -25,6 +25,82 @@
 #pragma mark Init, NSCoding and NSCopying
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+-(BIGNUM *)stringToBigNum :(NSString *)str
+{
+    NSData * data = [[NSData alloc] initWithBase64EncodedString:str options:0];
+    int len = data.length; ///d is longer?
+//    unsigned char c[len];
+    unsigned char *c;
+    c = (unsigned char*)malloc(sizeof(unsigned char) * len);
+
+    memset(c, 0, len);
+    memcpy(c, [data bytes], len);
+    BIGNUM * bn = NULL;
+    bn = BN_bin2bn(c, len, NULL);
+
+    free(c);
+    
+    return bn;
+}
+
+- (instancetype)initWithXMLDict:(NSDictionary *)dataValue
+{
+    NSParameterAssert([dataValue isKindOfClass:[NSDictionary class]]);
+    self = [super init];
+    if (self) {
+//        BIO *privateBIO = BIO_new_mem_buf((void *) dataValue.bytes, (int)dataValue.length);
+//        EVP_PKEY *pkey = EVP_PKEY_new();
+        @try {
+//            if (!PEM_read_bio_PrivateKey(privateBIO, &pkey, 0, NULL)) {
+//                @throw [NSException openSSLException];
+//            }
+//            _rsa = EVP_PKEY_get1_RSA(pkey);
+            
+            
+
+            NSData * dataPubKey = [[NSData alloc] initWithBase64EncodedString:dataValue[@"Modulus"] options:0];
+            NSData * dataExponent = [[NSData alloc] initWithBase64EncodedString:dataValue[@"Exponent"] options:0];
+            
+            
+            unsigned char modulus[256];
+            unsigned char exp[3];
+            
+            memset(modulus, 0, 256);
+            memcpy(modulus, [dataPubKey bytes], 256);
+            memset(exp, 0, 3);
+            memcpy(exp, [dataExponent bytes], 3);
+            
+            BIGNUM * bn_mod = NULL;
+            BIGNUM * bn_exp = NULL;
+            
+
+            bn_mod = BN_bin2bn(modulus, 256, NULL); // Convert both values to BIGNUM
+            bn_exp = BN_bin2bn(exp, 3, NULL);
+
+            RSA *rsa = NULL;
+            rsa = RSA_new(); // Create a new RSA key
+            rsa->n = bn_mod; // Assign in the values
+            rsa->e = bn_exp;
+            BIGNUM * bn_d = [self stringToBigNum:dataValue[@"D"]];
+            rsa->d = bn_d;
+            rsa->p = [self stringToBigNum:dataValue[@"P"]];
+            rsa->q = [self stringToBigNum:dataValue[@"Q"]];
+            rsa->dmp1 = [self stringToBigNum:dataValue[@"DP"]];
+            rsa->dmq1 = [self stringToBigNum:dataValue[@"DQ"]];
+            rsa->iqmp = [self stringToBigNum:dataValue[@"InverseQ"]];
+
+            _rsa = rsa;
+
+        }
+        @finally {
+            //EVP_PKEY_free(pkey);
+        }
+    }
+    
+    return self;
+}
+
+
 - (instancetype)initWithData:(NSData *)dataValue
 {
     NSParameterAssert([dataValue isKindOfClass:[NSData class]]);

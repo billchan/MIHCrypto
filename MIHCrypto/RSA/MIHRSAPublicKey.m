@@ -15,6 +15,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#define kAsymmetricSecKeyPairModulusSize 2048
+
 #import "MIHRSAPublicKey.h"
 #import "MIHInternal.h"
 #import "NSData+MIHConversion.h"
@@ -197,6 +199,27 @@
 - (NSString *)description
 {
     return [[NSString alloc] initWithData:[self dataValue] encoding:NSUTF8StringEncoding];
+}
+
+-(void)getModAndExp :(NSData **)dMod :(NSData **)dExp
+{
+    BIGNUM * bn_mod = NULL;
+    BIGNUM * bn_exp = NULL;
+    bn_mod = _rsa->n;
+    bn_exp = _rsa->e;
+    
+    unsigned char modulus[kAsymmetricSecKeyPairModulusSize/8];
+    unsigned char exp[3];
+    memset(modulus, 0, kAsymmetricSecKeyPairModulusSize/8);
+    memset(exp, 0, 3);
+    
+    ///convent to NSData
+    BN_bn2bin(bn_mod, modulus);
+    BN_bn2bin(bn_exp, exp);
+    
+    *dMod = [NSData dataWithBytes:modulus length:kAsymmetricSecKeyPairModulusSize/8];
+    *dExp = [NSData dataWithBytes:exp length:3];
+    
 }
 
 @end

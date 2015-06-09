@@ -28,4 +28,6 @@
     RSA *_rsa;
 }
 
+- (instancetype)initWithXMLDict:(NSDictionary *)dataValue;
+
 @end

@@ -29,4 +29,6 @@
     RSA *_rsa;
 }
 
+-(void)getModAndExp :(NSData **)dMod :(NSData **)dExp;
+
 @end
