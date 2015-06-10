@@ -23,10 +23,12 @@
  *
  * @author <a href="http://www.michaelhohl.net">Michael Hohl</a>
  */
-@interface MIHRSAPrivateKey : NSObject<MIHPrivateKey> {
+@interface MIHRSAPrivateKey : NSObject<MIHPrivateKey>
+{
 @protected
     RSA *_rsa;
 }
+@property (nonatomic, assign) int rsaPadding;
 
 - (instancetype)initWithXMLDict:(NSDictionary *)dataValue;
 

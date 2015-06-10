@@ -28,6 +28,7 @@
 @protected
     RSA *_rsa;
 }
+@property (nonatomic, assign) int rsaPadding;
 
 -(void)getModAndExp :(NSData **)dMod :(NSData **)dExp;
 
